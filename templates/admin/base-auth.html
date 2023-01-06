@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ g.linufy_config.sitename }}</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback" integrity="sha256-tTxmUaPxRG2ozKEU39+hT0PuDexx9xAEoccdULmTzXU=" crossorigin="anonymous">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" integrity="sha256-rhU0oslUDWrWDxTY4JxI2a2OdRtG7YSf3v5zcRbcySE=" crossorigin="anonymous">
+  <!-- Select2 style -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" crossorigin="anonymous">
+  <!-- JSuites style -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsuites@4.11.6/dist/jsuites.css" crossorigin="anonymous">
+  <!-- Cropper style -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.css" crossorigin="anonymous">
+  <style>
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      background-color: #007bff;
+      border-color: #006fe6;
+      color: #fff;
+      padding: 0 10px;
+      margin-top: .31rem;
+    }
+  </style>
+</head>
+{% set currentuser_meta = currentuser_get_meta() %}
+<body class="hold-transition sidebar-mini layout-fixed {% if currentuser_meta['dark_mode'] == 'true' %}dark-mode{% endif %}">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="{{ url_for('admin.index') }}" class="nav-link">{{ _('Home') }}</a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="{{ url_for('admin.profile') }}" class="nav-link">{{ _('Profile') }}</a>
+      </li>
+      <!--<li class="nav-item d-none d-sm-inline-block">
+        <a href="{{ url_for('admin.organization') }}" class="nav-link">{{ _('Organization') }}</a>
+      </li>-->
+    </ul>
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Notifications Dropdown Menu -->
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="far fa-bell"></i>
+          {% set notifications = get_notifications() %}
+          {% if notifications.count() %}
+          <span class="badge badge-warning navbar-badge">{{ notifications.count() }}</span>
+          {% endif %}
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <span class="dropdown-item dropdown-header">{{ notifications.count() }} {{ _('Notifications') }}</span>
+          {% for notification in notifications %}
+          <div class="dropdown-divider"></div>
+          <a href="{{ url_for('admin.redirect_notification', notification_id=notification.id) }}" class="dropdown-item">
+            {% if notification.object_type == 'system' %}
+            <i class="fa-solid fa-gear"></i> {{ notification.message }}
+            {% elif notification.object_type == 'comment' %}
+            <i class="fa-solid fa-envelope"></i> {{ notification.message }}
+            {% elif notification.object_type == 'user' %}
+            <i class="fa-solid fa-user"></i> {{ notification.message }}
+            {% endif %}
+            <span class="text-muted text-sm">{{ date_format(notification.created_at) }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+          <i class="fas fa-expand-arrows-alt"></i>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-widget="logout" href="/logout" role="button">
+          <i class="fas fa-right-from-bracket"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="{{ url_for('admin.index') }}" class="brand-link">
+      <img src="/assets/logo.svg" alt="{{ g.linufy_config.sitename }} Logo" class="brand-image" style="opacity: .8">
+      <span class="brand-text font-weight-light">{{ g.linufy_config.sitename }}</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <a href="{{ url_for('admin.profile') }}">{{ current_user.name }}</a>
+      </div>
+      {% if 'in_support' in session %}
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <a href="{{ url_for('admin.organizations_close_support') }}"><button type="submit" class="btn btn-danger btn-block"><i class="fa-solid fa-handshake-angle"></i> {{ _('Close Support') }}</button></a>
+      </div>
+      {% endif %}
+
+      <!-- SidebarSearch Form -->
+      <div class="form-inline">
+        <div class="input-group" data-widget="sidebar-search">
+          <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+          <div class="input-group-append">
+            <button class="btn btn-sidebar">
+              <i class="fas fa-search fa-fw"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+          <li class="nav-item">
+            <a href="{{ url_for('admin.index') }}" class="nav-link">
+              <i class="fas fa-tachometer-alt"></i>
+              <p>
+                {{ _('Dashboard') }}
+              </p>
+            </a>
+          </li>
+          <li class="nav-header">{{ _('Content') }}</li>
+          {% if require_permission('regions.list') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.regions_list') }}" class="nav-link">
+              <i class="fa-solid fa-building"></i>
+              <p>
+                {{ _('Regions/Sites') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+          {% if require_permission('assets.list') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.assets_list') }}" class="nav-link">
+              <i class="fa-solid fa-server"></i>
+              <p>
+                {{ _('Assets') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+          {% if require_permission('assets.list') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.assets_groups_list') }}" class="nav-link">
+              <i class="fa-solid fa-layer-group"></i>
+              <p>
+                {{ _('Assets Groups') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+          {% if require_permission('ipam.list') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.ipam_subnet_list') }}" class="nav-link">
+              <i class="fa-solid fa-globe"></i>
+              <p>
+                {{ _('IP Address Management') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+          {% if require_permission('password_manager.list') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.password_manager_list') }}" class="nav-link">
+              <i class="fa-solid fa-key"></i>
+              <p>
+                {{ _('Password Manager') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+          <li class="nav-header">{{ _('Administration') }}</li>
+          {% if require_permission('users.list') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.users_list') }}" class="nav-link">
+              <i class="fa-solid fa-user"></i>
+              <p>
+                {{ _('Users') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+          {% if require_permission('roles.list') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.roles_list') }}" class="nav-link">
+              <i class="fa-solid fa-user-group"></i>
+              <p>
+                {{ _('Roles') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+          {% if require_permission('configuration') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.configurations_edit') }}" class="nav-link">
+              <i class="fa-solid fa-wrench"></i>
+              <p>
+                {{ _('Configuration') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+          {% if require_permission('organizations.list') %}
+          <li class="nav-item">
+            <a href="{{ url_for('admin.organizations_list') }}" class="nav-link">
+              <i class="fa-solid fa-sitemap"></i>
+              <p>
+                {{ _('Organizations') }}
+              </p>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="col-sm-12">
+          {% for category, message in messages %}
+          <div class="callout callout-{{ category or 'success' }}">
+            <p>{{ message }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>{{ title_page }}</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="/">{{ _('Home') }}</a></li>
+              {% if g.breadcrumbs %}
+                {% for crumb in g.breadcrumbs %}
+                  {% if not loop.last %}
+                    <li class="breadcrumb-item"><a href="{{ crumb.path }}">{{ crumb.title }}</a></li>
+                  {% else %}
+                    <li class="breadcrumb-item active">{{ crumb.title }}</li>
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                {% if title_page %}<li class="breadcrumb-item active">{{ title_page }}</li>{% endif %}
+              {% endif %}
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+  {% block content %}
+  {% endblock %}
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <div class="float-right d-none d-sm-block">
+      <b>Version</b> {{ config.VERSION }}
+    </div>
+    <strong>Powered with <i class="fas fa-heart"></i> by <a href="https://github.com/LinuFy">LinuFy</a>.</strong>
+  </footer>
+</div>
+<!-- ./wrapper -->
+
+  <!-- jQuery -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+  <!-- Boostrap javascript -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha256-7dA7lq5P94hkBsWdff7qobYkp9ope/L5LQy2t/ljPLo=" crossorigin="anonymous"></script>
+  <!-- Theme javascript -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js" integrity="sha256-u2yoem2HtOCQCnsp3fO9sj5kUrL+7hOAfm8es18AFjw=" crossorigin="anonymous"></script>
+  <!-- Select2 javascript -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js" integrity="sha256-vjFnliBY8DzX9jsgU/z1/mOuQxk7erhiP0Iw35fVhTU=" crossorigin="anonymous"></script>
+  <!-- JSuites javascript -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsuites@4.11.6/dist/jsuites.min.js" integrity="sha256-vQbER14BeUxuuW4e5dNhaTyc94iou3mbYMpE8pHHBlg=" crossorigin="anonymous"></script>
+  <!-- Password meter javascript -->
+  <script src="https://cdn.jsdelivr.net/npm/pwstrength-bootstrap@3.1.1/dist/pwstrength-bootstrap.min.js" integrity="sha256-Cbm5N2vyUdsqSPY+FJ073XEc37gkjYeRBrPivkR1IyQ=" crossorigin="anonymous"></script>
+  <!-- Knob javascript -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery-knob@1.2.11/dist/jquery.knob.min.js" integrity="sha256-2144q+NOM/XU6ZxSqRTJ8P0W/CkY6zXc6mXYt4+mF9s=" crossorigin="anonymous"></script>
+  <!-- Count Chars javascript -->
+  <script type="text/javascript">
+  function count_chars(obj){
+    document.getElementById("count_chars").innerHTML = obj.value.length;
+  }
+  if (document.getElementById("title") && document.getElementById("count_chars")) {
+    document.getElementById("count_chars").innerHTML = document.getElementById("title").value.length;
+  }
+  if (document.getElementById("name") && document.getElementById("count_chars")) {
+    document.getElementById("count_chars").innerHTML = document.getElementById("name").value.length;
+  }  
+
+  $(document).ready(function() {
+      $('.select2').select2({
+        closeOnSelect: false
+      });
+  });
+  
+  jSuites.calendar(document.getElementById('schedule'), {
+    time:true,
+    format:'YYYY-MM-DD HH24:MI',
+  });
+
+  function searchTable(inputId, tableId) {
+    // Declare variables
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById(inputId);
+    filter = input.value.toUpperCase();
+    table = document.getElementById(tableId);
+    tr = table.getElementsByTagName("tr");
+
+    // Loop through all table rows, and hide those who don't match the search query
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+      if (td) {
+        txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+  </script>
+  <!-- Copy To Clipboard -->
+  <script>
+    function copyToClipboard(id) {
+      /* Get the text field */
+      var copyText = document.getElementById(id);
+
+       /* Copy the text inside the text field */
+      navigator.clipboard.writeText(copyText.textContent);
+    }
+
+    function copyPasswordToClipboard(group_id, password_id) {
+      $.get("/password_manager/group/" + group_id + "/entry/ajax/" + password_id, function(responseText) {
+          navigator.clipboard.writeText(responseText);
+      });
+    }
+  </script>
+  <script>
+    $('#password').pwstrength({
+      ui: { showVerdictsInsideProgressBar: true }
+    });
+  </script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+
+        $("#privilege_escalation_password_manager_group_id").change(function(){
+            var group_id = $(this).val();
+
+            $.ajax({
+                url: "/password_manager/group/" + group_id + "/ajax",
+                type: 'get',
+                dataType: 'json',
+                success:function(response){
+
+                    var len = response.length;
+
+                    $("#privilege_escalation_password_manager_id").empty();
+                    $("#privilege_escalation_password_manager_id").prop( "disabled", false );
+                    for( var i = 0; i<len; i++){
+                        var id = response[i]['id'];
+                        var name = response[i]['name'];
+
+                        $("#privilege_escalation_password_manager_id").append("<option value='"+id+"'>"+name+"</option>");
+
+                    }
+                }
+            });
+        });
+
+        $("#password_manager_group_id").change(function(){
+            var group_id = $(this).val();
+
+            $.ajax({
+                url: "/password_manager/group/" + group_id + "/ajax",
+                type: 'get',
+                dataType: 'json',
+                success:function(response){
+
+                    var len = response.length;
+
+                    $("#password_manager_id").empty();
+                    $("#password_manager_id").prop( "disabled", false );
+                    for( var i = 0; i<len; i++){
+                        var id = response[i]['id'];
+                        var name = response[i]['name'];
+
+                        $("#password_manager_id").append("<option value='"+id+"'>"+name+"</option>");
+
+                    }
+                }
+            });
+        });
+
+        $("#region_id").change(function(){
+            var region_id = $(this).val();
+
+            $.ajax({
+                url: "/regions/subnets/" + region_id + "/ajax",
+                type: 'get',
+                dataType: 'json',
+                success:function(response){
+
+                    var len = response.length;
+
+                    $("#subnet_id").empty();
+                    $("#subnet_id").prop( "disabled", false );
+                    for( var i = 0; i<len; i++){
+                        var id = response[i]['id'];
+                        var name = response[i]['name'];
+
+                        $("#subnet_id").append("<option value='"+id+"'>"+name+"</option>");
+
+                    }
+                }
+            });
+        });
+
+        $("#password_type").change(function(){
+            var password_type = $(this).val();
+
+            if(password_type == 'password'){
+              $("#ssh_key_form_group").css("display", "none");
+              $("#password_form_group").show();
+            }else{
+              $("#password_form_group").hide();
+              $("#ssh_key_form_group").css("display", "");
+            }
+        });
+
+        $("#privilege_escalation").change(function(){
+            var privilege_escalation = $(this).val();
+
+            if(privilege_escalation == 'False'){
+              $("#privilege_escalation_password_manager_form_group").css("display", "none");
+              $("#privilege_escalation_password_form_group").css("display", "none");
+            }else{
+              $("#privilege_escalation_password_manager_form_group").css("display", "");
+              $("#privilege_escalation_password_form_group").css("display", "");
+            }
+        });
+    });
+  </script>
+</body>

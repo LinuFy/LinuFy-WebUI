@@ -1,0 +1,465 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header d-flex p-0">
+          <h3 class="card-title p-3">{% if meta.hostname %}{{ meta.hostname }}{% else %}{{ asset.name }}{% endif %} <a href="#modal-hostname" data-toggle="modal" data-target="#modal-hostname"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-pen-to-square"></i></button></a></h3>
+          <ul class="nav nav-pills ml-auto p-2">
+            <li class="nav-item"><a class="nav-link active" href="#overview" data-toggle="tab">{{ _('Overview') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#packages" data-toggle="tab">{{ _('Packages') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#network" data-toggle="tab">{{_('Network') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#storage" data-toggle="tab">{{ _('Storage') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#accounts" data-toggle="tab">{{ _('Accounts') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#services" data-toggle="tab">{{ _('Services') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">{{ _('Settings') }}</a></li>
+          </ul>
+        </div>
+        <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane active" id="overview">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Overview') }}</h3>
+                <div class="card-tools">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-warning">{{ _('Action') }}</button>
+                    <button type="button" class="btn btn-sm btn-warning dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false"></button>
+                    <div class="dropdown-menu" role="menu" style="">
+                      <a class="dropdown-item" href="{{ url_for('admin.assets_reboot', asset_id=asset.id) }}">{{ _('Reboot') }}</a>
+                      <a class="dropdown-item" href="{{ url_for('admin.assets_poweroff', asset_id=asset.id) }}">{{ _('Power off') }}</a>
+                      <a class="dropdown-item" href="{{ url_for('admin.assets_update_package', asset_id=asset.id, package='all') }}">{{ _('Update packages') }}</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p><b>{{ _('Operating System') }}:</b> <img width="24px" src="{{ url_for('admin.assets_img_distro', filename=meta.system|lower) }}" alt="{{ meta.system }}" title="{{ meta.system }}"> {{ meta.system }}</p>
+                </div>
+                <div class="col-sm-4">
+                  <p><b>{{_('Uptime') }}:</b> {{ meta.uptime }}</p>
+                </div>
+                <div class="col-sm-4">
+                  <p><b>{{ _('Hardware') }}:</b> {{ meta.hardware_vendor }}</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p><b>{{ _('Reboot Required') }}:</b> {% if meta.reboot_required == '1' %}{{ _('True') }}{% else %}{{ _('False') }}{% endif %}</p>
+                </div>
+                <div class="col-sm-4">
+                  <p><b>{{ _('IP Address') }}:</b> <a href="{{ url_for('admin.ipam_ip_address_edit', subnet_id=asset.ip_address.subnet_id, ip_address_id=asset.ip_address.id) }}">{{ asset.ip_address.ip_address }}</a></p>
+                </div>
+                <div class="col-sm-4">
+                  <p><b>{{ _('Processor') }}:</b> {{ meta.processor }}</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p><b>{{ _('SELinux') }}:</b> {{ meta.selinux }}<a href="#modal-selinux" data-toggle="modal" data-target="#modal-selinux"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-pen-to-square"></i></button></a>
+                </div>
+                <div class="col-sm-4">
+                  <p><b>{{ _('Last Synchronization') }}:</b> {{ meta.last_sync }}</p>
+                </div>
+                <div class="col-sm-4">
+                  <p><b>{{ _('Kernel Version') }}:</b> {{ meta.kernel_version }}</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p><b>{{ _('Timezone') }}:</b> {{ meta.timezone }}<a href="#modal-timezone" data-toggle="modal" data-target="#modal-timezone"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-pen-to-square"></i></button></a></p>
+                </div>
+                <div class="col-sm-4">
+                  <p></p>
+                </div>
+                <div class="col-sm-4">
+                  <p></p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="info-box bg-info">
+                    <span class="info-box-icon"><i class="fa-solid fa-memory"></i></span>
+                    <div class="info-box-content">
+                      <div class="progress">
+                        <div class="progress-bar" style="width: {{ meta.memory_used | int / meta.memory_total | int * 100}}%"></div>
+                      </div>
+                      <span class="progress-description">
+                        {{ convert_size(meta.memory_used) }} / {{ convert_size(meta.memory_total) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-12">
+                  <div class="info-box bg-info">
+                    <span class="info-box-icon"><i class="fa-solid fa-microchip"></i></span>
+                    <div class="info-box-content">
+                      <div class="progress">
+                        <div class="progress-bar" style="width: {{ meta.cpu_usage }}%"></div>
+                      </div>
+                      <span class="progress-description">
+                        {{ meta.cpu_usage | int | round(1) }} / 100 %
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="card-header">
+                  <h3 class="card-title">{{ _('Processes') }}</h3>
+                </div>
+                <table class="table table-hover" id="processes">
+                  <thead>
+                      <tr>
+                          <th>{{ _('PID') }}</th>
+                          <th>{{ _('Command') }}</th>
+                          <th>{{ _('CPU') }}</th>
+                          <th>{{ _('Memory') }}</th>
+                          <th></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for process in process_usage[1:] %}
+                    <tr>
+                        <td>{{ " ".join(process.split()).split(' ', 3)[2] }}</td>
+                        <td>{{ " ".join(process.split()).split(' ', 3)[3] }}</td>
+                        {% if " ".join(process.split()).split(' ', 3)[0] | int > 0 %}
+                        <td><div class="progress progress active"><div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="{{ " ".join(process.split()).split(' ', 3)[0] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ " ".join(process.split()).split(' ', 3)[0] }}%"></div></div></td>
+                        {% else %}
+                        <td><div class="progress progress active"><div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{ " ".join(process.split()).split(' ', 3)[0] }}%"></div></div></td>
+                        {% endif %}
+                        {% if " ".join(process.split()).split(' ', 3)[1] | int > 0 %}
+                        <td><div class="progress progress active"><div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="{{ " ".join(process.split()).split(' ', 3)[1] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ " ".join(process.split()).split(' ', 3)[1] }}%"></div></div></td
+                        {% else %}
+                        <td><div class="progress progress active"><div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{ " ".join(process.split()).split(' ', 3)[0] }}%"></div></div></td>
+                        {% endif %}
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="packages">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Packages') }} <a href="{{ url_for('admin.assets_update_package', asset_id=asset.id, package='all') }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-arrows-rotate"></i></button></a></h3>
+                <div class="card-tools">
+                  <div class="input-group input-group" style="width: 200px;">
+                    <input type="text" name="table_search" id="table_search_packages" onkeyup="searchTable('table_search_packages', 'packages')" class="form-control float-right" placeholder="Search">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <table class="table table-hover text-nowrap" id="packages">
+                  <thead>
+                      <tr>
+                          <th>{{ _('Name') }}</th>
+                          <th>{{ _('Version') }}</th>
+                          <th>{{ _('Arch') }}</th>
+                          <th>{{ _('Upgrade') }}</th>
+                          <th></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for package in packages %}
+                    <tr>
+                        <td>{{ packages[package][0]['name'] }}</td>
+                        <td>{{ packages[package][0]['version'] }}</td>
+                        <td>{{ packages[package][0]['arch'] }}</td>
+                        <td>{% if 'upgradable_version' in packages[package][0] %}{{ packages[package][0]['upgradable_version'] }}{% else %} - {% endif %}</td>
+                        <td>{% if 'upgradable_version' in packages[package][0] %}<a href="{{ url_for('admin.assets_update_package', asset_id=asset.id, package=packages[package][0]['name']) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-arrows-rotate"></i></button></a>{% endif %}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+              </table>
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="network">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Network') }}</h3>
+                <div class="card-tools">
+                  <div class="input-group input-group" style="width: 200px;">
+                    <input type="text" name="table_search" id="table_search_network" onkeyup="searchTable('table_search_network', 'network')" class="form-control float-right" placeholder="Search">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <table class="table table-hover text-nowrap" id="network">
+                  <thead>
+                      <tr>
+                          <th>{{ _('Device') }}</th>
+                          <th>{{ _('MTU') }}</th>
+                          <th>{{ _('MAC Address') }}</th>
+                          <th>{{ _('Active') }}</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for interface in interfaces %}
+                      <tr>
+                          <td>{{ interface.device }}</td>
+                          <td>{{ interface.mtu }}</td>
+                          <td>{{ interface.macaddress }}</td>
+                          <td>{{ interface.active }}</td>
+                          <td></td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="storage">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Storage') }}</h3>
+                <div class="card-tools">
+                  <div class="input-group input-group" style="width: 200px;">
+                    <input type="text" name="table_search" id="table_search_storage" onkeyup="searchTable('table_search_storage', 'storage')" class="form-control float-right" placeholder="Search">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <table class="table table-hover text-nowrap" id="storage">
+                  <thead>
+                      <tr>
+                          <th>{{ _('Filesystem') }}</th>
+                          <th>{{ _('Mountpoint') }}</th>
+                          <th>{{ _('Used') }}</th>
+                          <th>{{ _('Available') }}</th>
+                          <th>{{ _('Usage') }}</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for entry in mounted %}
+                      {% set used = convert_size(entry.used) %}
+                      {% set available = convert_size(entry.available) %}
+                      <tr>
+                          <td>{{ entry.filesystem }}</td>
+                          <td>{{ entry.mountpoint }}</td>
+                          <td>{{ used }}</td>
+                          <td>{{ available }}</td>
+                          {% if entry.used > 0 %}
+                          <td><div class="progress progress active"><div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="{{ (entry.used / entry.available) * 100 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ (entry.used / entry.available) * 100 }}%"></div></div></td>
+                          {% else %}
+                          <td><div class="progress progress active"><div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div></td>
+                          {% endif %}
+                          <td><a href="{{ url_for('admin.assets_delete', asset_id=entry.mountpoint) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-eject"></i></button></a></td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="accounts">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Accounts') }}</h3>
+                <div class="card-tools">
+                  <div class="input-group input-group" style="width: 200px;">
+                    <input type="text" name="table_search" id="table_search_accounts" onkeyup="searchTable('table_search_accounts', 'accounts')" class="form-control float-right" placeholder="Search">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body table-responsive p-0">
+                  <table class="table table-hover text-nowrap" id="accounts">
+                      <thead>
+                          <tr>
+                              <th>{{ _('Name') }}</th>
+                              <th>{{ _('Description') }}</th>
+                              <th>{{ _('UID') }}</th>
+                              <th>{{ _('GID') }}</th>
+                              <th>{{ _('Home') }}</th>
+                              <th>{{ _('Shell') }}</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for user in users %}
+                          <tr>
+                              <td>{{ user.name }}</td>
+                              <td>{{ user.description }}</td>
+                              <td>{{ user.uid }}</td>
+                              <td>{{ user.gid }}</td>
+                              <td>{{ user.homedir }}</td>
+                              <td>{{ user.shell }}</td>
+                              <td><a href="{{ url_for('admin.assets_get', asset_id=user.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-eye"></i></button></a>
+                              <a href="{{ url_for('admin.assets_delete', asset_id=user.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-trash"></i></button></a></td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </div>
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="services">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Services') }}</h3>
+              </div>
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Commands') }}</h3>
+              </div>
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="settings">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Settings') }}</h3>
+              </div>
+              <div class="card-body">
+                <form method="post">
+                  <div class="form-group">
+                    <label for="password_manager_group_id">{{ _('Password Manager Group') }}</label>
+                    <select class="custom-select rounded-0" id="password_manager_group_id" name="password_manager_group_id">
+                      <option> - </option>
+                      {% for group in groups %}
+                      {% if password_manager %}
+                      <option value="{{ group.id }}" {% if group.id == password_manager.group.id %}selected{% endif %}>{{ group.name }}</option>
+                      {% else %}
+                      <option value="{{ group.id }}">{{ group.name }}</option>
+                      {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="password_manager_id">{{ _('Credential') }}</label>
+                    <select class="custom-select rounded-0" id="password_manager_id" name="password_manager_id" disabled>
+                      {% if password_manager %}
+                      <option value="{{ password_manager.id }}" selected>{{ password_manager.name }}</option>
+                      {% endif %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="ssh_port">{{ _('SSH Port') }}</label>
+                    <input type="number" class="form-control" id="ssh_port" name="ssh_port" value="{% if 'ssh_port' in meta %}{{ meta.ssh_port }}{% else %}22{% endif %}">
+                  </div>
+                  <div class="form-group">
+                    <label for="privilege_escalation">{{ _('Privilege Escalation Required') }}</label>
+                    <select class="custom-select rounded-0" id="privilege_escalation" name="privilege_escalation">
+                      <option value="False"{% if 'privilege_escalation' in meta and meta['privilege_escalation'] == "False" %}selected{% endif %}>{{ _('False') }}</option>
+                      <option value="True" {% if 'privilege_escalation' in meta and meta['privilege_escalation'] == "True" %}selected{% endif %}>{{ _('True') }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group" id="privilege_escalation_password_manager_form_group" name="privilege_escalation_password_manager_form_group" style="display:none;">
+                    <label for="privilege_escalation_password_manager_group_id">{{ _('Privilege Escalation Password Manager Group') }}</label>
+                    <select class="custom-select rounded-0" id="privilege_escalation_password_manager_group_id" name="privilege_escalation_password_manager_group_id">
+                      <option> - </option>
+                      {% for group in groups %}
+                      <option value="{{ group.id }}">{{ group.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group" id="privilege_escalation_password_form_group" name="privilege_escalation_password_form_group" style="display:none;">
+                    <label for="privilege_escalation_password_manager_id">{{ _('Privilege Escalation Credential') }}</label>
+                    <select class="custom-select rounded-0" id="privilege_escalation_password_manager_id" name="privilege_escalation_password_manager_id" disabled>
+                    </select>
+                  </div>
+                  <input type="hidden" name="block" value="credential">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+                </form>
+              </div>
+            </div>
+            <!-- /.tab-pane -->
+          </div>
+          <!-- /.tab-content -->
+        </div><!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+    <div class="modal fade" id="modal-selinux" tabindex='-1'>
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">{{ _('Configure SELinux') }}</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post">
+              <div class="form-group">
+                <label for="state">{{ _('State') }}</label>
+                <select class="custom-select rounded-0" id="state" name="state">
+                  <option value="disabled" {% if meta.selinux == "disabled" %}selected{% endif %}>{{ _('Disabled') }}</option>
+                  <option value="permissive" {% if meta.selinux == "permissive" %}selected{% endif %}>{{ _('Permissive') }}</option>
+                  <option value="enforcing" {% if meta.selinux == "enforcing" %}selected{% endif %}>{{ _('Enforcing') }}</option>
+                </select>
+              </div>
+              <input type="hidden" name="block" value="selinux">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modal-hostname" tabindex='-1'>
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">{{ _('Configure Hostname') }}</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post">
+                <div class="form-group">
+                  <label for="hostname">{{ _('Hostname') }}</label>
+                  <input type="text" class="form-control" id="hostname" name="hostname" placeholder="{{ _('Hostname') }}" value="{{ meta.hostname }}">
+                </div>
+              <input type="hidden" name="block" value="hostname">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modal-timezone" tabindex='-1'>
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">{{ _('Configure Timezone') }}</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post">
+              <div class="form-group">
+                <label for="timezone">{{ _('Set timezone') }}</label>
+                <select class="custom-select rounded-0" id="timezone" name="timezone">
+                  {% for timezone in timezones %}
+                  <option value="{{ timezone }}" {% if timezone == meta.timezone %}selected{% endif %}>{{ timezone }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <input type="hidden" name="block" value="timezone">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

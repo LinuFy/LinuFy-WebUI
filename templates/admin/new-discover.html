@@ -1,0 +1,52 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('Assets') }}</h3>
+        </div>
+        <div class="card-body">
+          <form action="new" method="post">
+            <div class="form-group">
+              <label for="region_id">{{ _('Region/Site') }}</label>
+              <select class="custom-select rounded-0" id="region_id" name="region_id">
+                {% for region in regions %}
+                <option value="{{ region.id }}">{{ region.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="discovery_method">{{ _('Discovery method') }}</label>
+              <select class="custom-select rounded-0" id="discovery_method" name="discovery_method">
+                <optgroup label="{{ _('Virtualization') }}">
+                    <option value="vcenter">{{ _('ESX/vCenter Scan') }}</option>
+                    <option value="proxmox">{{ _('Proxmox Scan') }}</option>
+                </optgroup>
+                <optgroup label="{{ _('Cloud') }}">
+                    <option value="aws">{{ _('Amazon Web Service Scan') }}</option>
+                    <option value="azure">{{ _('Microsoft Azure Scan') }}</option>
+                    <option value="gcp">{{ _('Google Cloud Platform Scan') }}</option>
+                    <option value="openstack">{{ _('Openstack Scan') }}</option>
+                </optgroup>
+                <optgroup label="{{ _('Other') }}">
+                    <option value="network">{{ _('Network Scan') }}</option>
+                    <option value="ldap">{{ _('LDAP/Active Directory Scan') }}</option>
+                    <option value="zabbix">{{ _('Zabbix Scan') }}</option>
+                </optgroup>
+              </select>
+            </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+          </form>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}

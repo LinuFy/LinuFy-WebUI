@@ -1,0 +1,28 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('Role') }}</h3>
+        </div>
+        <div class="card-body">
+          <form action="new" method="post">
+            <div class="form-group">
+              <label for="role">{{ _('Name') }}</label>
+              <input type="text" class="form-control" id="role" name="role" placeholder="{{ _('New role') }}">
+            </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+          </form>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('Organization') }}</h3>
+        </div>
+        <div class="card-body">
+          <form action="new" method="post">
+            <div class="form-group">
+              <label for="name">{{ _('Name') }}</label>
+              <input type="text" class="form-control" id="name" name="name" placeholder="{{ _('New organization') }}">
+            </div>
+            <div class="form-group">
+              <label for="type_of">{{ _('Type Of') }}</label>
+              <select class="custom-select rounded-0" id="type_of" name="type_of">
+                <option value="reseller">{{ _('Reseller') }}</option>
+                <option value="customer">{{ _('Customer') }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="email">{{ _('Email Administrator') }}</label>
+              <input type="text" class="form-control" id="email" name="email" placeholder="admin@organization.com">
+            </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+          </form>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}

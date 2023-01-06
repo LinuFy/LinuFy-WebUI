@@ -1,0 +1,176 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header d-flex p-0">
+          <h3 class="card-title p-3">{{ _('Organization') }}</h3>
+          <ul class="nav nav-pills ml-auto p-2">
+            <li class="nav-item"><a class="nav-link active" href="#identity" data-toggle="tab">{{ _('Identity') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#security" data-toggle="tab">{{_('Security') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#api" data-toggle="tab">{{ _('API') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#support" data-toggle="tab">{{ _('Support') }}</a></li>
+          </ul>
+        </div><!-- /.card-header -->
+        <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane active" id="identity">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Identity') }}</h3>
+              </div>
+              <form method="post">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="name">{{ _('Name') }}</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ current_user.organization.name }}">
+                  </div>
+                </div>
+                <input type="hidden" name="block" value="identity">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+              </form>
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="security">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Password') }}</h3>
+              </div>
+              <form method="post">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="current_password">{{ _('Current password') }}</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" placeholder="{{ _('Current password') }}">
+                  </div>
+                  <div class="form-group">
+                    <label for="new_password">{{ _('New password') }}</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" placeholder="{{ _('New password') }}">
+                  </div>
+                  <div class="form-group">
+                    <label for="repeat_new_password">{{ _('Repeat new password') }}</label>
+                    <input type="password" class="form-control" id="repeat_new_password" name="repeat_new_password" placeholder="{{ _('Repeat new password') }}">
+                  </div>
+                </div>
+                <input type="hidden" name="block" value="security">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+              </form>
+              <div class="card-header">
+                <h3 class="card-title">{{ _('2 Factor Authentication') }}</h3>
+              </div>
+              {% if mfa_hash %}
+              <form method="post">
+                <div class="card-body">
+                  <div class="text-center">
+                    <img src="{{ qrcode(qrcode_data) }}" alt="{{ _('QRCode') }}">
+                  </div>
+                  <div class="form-group">
+                    <label for="otp_code">{{ _('OTP code') }}</label>
+                    <input type="text" class="form-control" id="otp_code" name="otp_code" placeholder="{{ _('OTP code') }}">
+                  </div>
+                </div>
+                <input type="hidden" name="block" value="security">
+                <input type="hidden" name="mfa_hash" value="{{ mfa_hash }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+              </form>
+              {% else %}
+              <form method="post">
+                <input type="hidden" name="disable_mfa" value="true">
+                <input type="hidden" name="block" value="security">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-warning btn-block">{{ _('Disable 2 Factor Authentication') }}</button>
+              </form>
+              {% endif %}
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="api">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('API') }}</h3>
+              </div>
+              <form method="post">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="name">{{ _('Name') }}</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="{{ _('Application name') }}">
+                  </div>
+                  <div class="form-group">
+                    <label for="permission">{{ _('Permissions') }}</label>
+                    <select class="custom-select rounded-0" id="permission" name="permission">
+                      <option value="read">{{ _('Readonly') }}</option>
+                      <option value="full">{{ _('Full') }}</option>
+                    </select>
+                  </div>
+                </div>
+                <input type="hidden" name="block" value="api">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+              </form>
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Keys') }}</h3>
+              </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover text-nowrap" id="table">
+                        <thead>
+                            <tr>
+                                <th>{{ _('Name') }}</th>
+                                <th>{{ _('Permission') }}</th>
+                                <th>{{ _('Key') }}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key in keys %}
+                            <tr>
+                                <td>{{ key.name }}</td>
+                                <td>{{ _(key.permission) }}</td>
+                                <td>{{ key.key }}</td>
+                                <td><a href="{{ url_for('admin.users_api_key_delete', key_id=key.id, user_id=key.user_id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-trash"></i></button></a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Organization Key') }}</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" value="{{ current_user.organization_id }}" disabled="">
+                </div>
+              </div>
+            </div>
+            <!-- /.tab-pane -->
+            <div class="tab-pane" id="support">
+              <div class="card-header">
+                <h3 class="card-title">{{ _('Support') }}</h3>
+              </div>
+              <form method="post">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="allowed_support">{{ _('Allow support connection') }}</label>
+                    <select class="custom-select rounded-0" id="allowed_support" name="allowed_support">
+                      <option value="1" {% if current_user.organization.allowed_support == True %}selected{% endif %}> {{ _('True') }}</option>
+                      <option value="0" {% if current_user.organization.allowed_support == False %}selected{% endif %}>{{ _('False') }}</option>
+                    </select>
+                  </div>
+                </div>
+                <input type="hidden" name="block" value="support">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+              </form>
+            </div>
+          </div>
+          <!-- /.tab-pane -->
+          </div>
+          <!-- /.tab-content -->
+        </div><!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}
+

@@ -1,0 +1,67 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('IP Address Management') }}</h3>
+          <div class="card-tools">
+            <div class="input-group input-group" style="width: 400px;">
+              <input type="text" name="table_search" id="table_search" onkeyup="searchTable('table_search', 'table')" class="form-control float-right" placeholder="Search">
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-default">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+              {% if require_permission('ipam.edit') %}
+              <div class="input-group-append">
+                <a href="{{ url_for('admin.ipam_subnet_new') }}"><button class="btn btn-primary btn">
+                  <i class="fa-solid fa-circle-plus"></i>
+                </button></a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap" id="table">
+                <thead>
+                    <tr>
+                        <th>{{ _('Region/Site') }}</th>
+                        <th>{{ _('Name') }}</th>
+                        <th>{{ _('Description') }}</th>
+                        <th>{{ _('VLAN') }}</th>
+                        <th>{{ _('Subnet') }}</th>
+                        <th>{{ _('Mask') }}</th>
+                        <th>{{ _('Gateway') }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subnet in subnets %}
+                    <tr>
+                        <td>{{ subnet.region.name }}</td>
+                        <td>{{ subnet.name }}</td>
+                        <td>{{ subnet.description }}</td>
+                        <td>{{ subnet.vlan }}</td>
+                        <td>{{ subnet.subnet }}</td>
+                        <td>{{ subnet.mask }}</td>
+                        <td>{% if subnet.gateway.ip_address %}{{ subnet.gateway.ip_address }}{% else %} - {% endif %}</td>
+                        <td><a href="{{ url_for('admin.ipam_ip_address_list', subnet_id=subnet.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-ethernet"></i></button></a>
+                        <a href="{{ url_for('admin.ipam_subnet_edit', subnet_id=subnet.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-pen-to-square"></i></button></a>
+                        <a href="{{ url_for('admin.ipam_subnet_delete', subnet_id=subnet.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-trash"></i></button></a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}

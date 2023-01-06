@@ -1,0 +1,23 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('Access Denied') }}</h3>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-danger">
+            <i class="icon fas fa-ban"></i>{{ _('You are trying to access a page for which you do not have permission. Please contact your support.') }}
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}

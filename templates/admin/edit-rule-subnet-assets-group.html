@@ -1,0 +1,64 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('Assets Group') }}</h3>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            <div class="form-group">
+              <label for="name">{{ _('Name') }}</label>
+              <input type="text" class="form-control" id="name" name="name" value="{{ name }}" readonly>
+            </div>
+            <div class="form-group">
+              <label for="description">{{ _('Description') }}</label>
+              <textarea class="form-control" id="description" name="description" readonly>{{ description }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="rule_type">{{ _('Rule') }}</label>
+              <input type="text" class="form-control" id="rule_type" name="rule_type" value="{{ rule_type }}" readonly>
+            </div>
+            <div class="form-group">
+              <label for="region_id">{{ _('Region/Site') }}</label>
+              <select class="custom-select rounded-0" id="region_id" name="region_id">
+                <option> - </option>
+                {% for region in regions %}
+                <option value="{{ region.id }}">{{ region.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="subnet_id">{{ _('Subnet') }}</label>
+              <select class="custom-select rounded-0" id="subnet_id" name="subnet_id" disabled>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="password_manager_group_id">{{ _('Password Manager Group') }}</label>
+              <select class="custom-select rounded-0" id="password_manager_group_id" name="password_manager_group_id">
+                <option> - </option>
+                {% for group in groups %}
+                <option value="{{ group.id }}">{{ group.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="password_manager_id">{{ _('Credential') }}</label>
+              <select class="custom-select rounded-0" id="password_manager_id" name="password_manager_id" disabled>
+              </select>
+            </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+          </form>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}
