@@ -1,0 +1,94 @@
+{% extends "base-unauth.html" %}
+
+{% block content %}
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+    <a href="index"><b>{{ g.linufy_config.sitename }}</b></a>
+  </div>
+  <!-- /.login-logo -->
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">Sign in to start your session</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category or 'success' }}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %}
+      {% if mfa_hash %}
+      <form method="post">
+        <div class="input-group mb-3">
+          <input type="text" name="otp_code" class="form-control" placeholder="OTP code">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <!-- /.col -->
+          <div class="col-4">
+            <input type="hidden" name="remember" value="{{ remember }}">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type=hidden value="{{ next or '' }}" name=next>
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>      
+      {% else %}
+      <form action="login" method="post">
+        <div class="input-group mb-3">
+          <input type="email" name="email" class="form-control" placeholder="Email" {% if email %}value="{{ email }}"{% endif %}>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-envelope"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" name="password" class="form-control" placeholder="Password">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8">
+            <div class="icheck-primary">
+              <input type="checkbox" name="remember" id="remember">
+              <label for="remember">
+                Remember Me
+              </label>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="col-4">
+            <input type=hidden value="{{ next or '' }}" name=next>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
+      {% endif %}
+      <p class="mb-1">
+        <a href="forgot">I forgot my password</a>
+      </p>
+      {% if g.linufy_config.users_can_register == "True" %}
+      <p class="mb-0">
+        <a href="signup" class="text-center">Register a new membership</a>
+      </p>
+      {% endif %}
+    </div>
+    <!-- /.login-card-body -->
+  </div>
+</div>
+<!-- /.login-box -->
+{% endblock %}

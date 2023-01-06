@@ -1,0 +1,82 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3>{{ regions_count }}</h3>
+
+                <p>{{ _('Regions') }}</p>
+              </div>
+              <div class="icon">
+                <i class="fa-solid fa-building"></i>
+              </div>
+              <a href="{{ url_for('admin.regions_list') }}" class="small-box-footer">{{ ('View more') }} <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3>{{ assets_count }}</h3>
+
+                <p>{{ _('Assets') }}</p>
+              </div>
+              <div class="icon">
+                <i class="fa-solid fa-server"></i>
+              </div>
+              <a href="{{ url_for('admin.assets_list') }}" class="small-box-footer">{{ ('View more') }} <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3>{{ users_count }}</h3>
+
+                <p>{{ _('Users') }}</p>
+              </div>
+              <div class="icon">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <a href="{{ url_for('admin.users_list') }}" class="small-box-footer">{{ ('View more') }} <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+        </div>
+        <!-- /.row -->
+        <!-- Main row -->
+        <div class="row">
+          <!-- Left col -->
+          <section class="col-lg-5">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fa-solid fa-rotate"></i>
+                  {{ _('Update') }}
+                </h3>
+              </div><!-- /.card-header -->
+              <div class="card-body">
+                {% set new_version_available = new_version_available() %}
+                {% if new_version_available %}
+                <p>{{ _('A new version is available. You should install it : ') }}<a href="https://github.com/LinuFy/LinuFy-WebUI/releases/tag/{{ new_version_available }}" target="_blanck">{{ new_version_available }}</a></p>
+                {% else %}
+                <p>{{ _('Congratulations you are in the latest version available.') }}</p>
+                {% endif %}
+              </div><!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </section>
+          <!-- /.Left col -->
+        </div>
+        <!-- /.row (main row) -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+{% endblock %}

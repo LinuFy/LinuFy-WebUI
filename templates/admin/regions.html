@@ -1,0 +1,88 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('Regions/Sites') }}</h3>
+          <div class="card-tools">
+            <div class="input-group input-group" style="width: 400px;">
+              <input type="text" name="table_search" id="table_search" onkeyup="searchTable('table_search', 'table')" class="form-control float-right" placeholder="Search">
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-default">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+              {% if require_permission('regions.edit') %}
+              <div class="input-group-append">
+                <a href="{{ url_for('admin.regions_new') }}"><button class="btn btn-primary btn">
+                  <i class="fa-solid fa-circle-plus"></i>
+                </button></a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap" id="table">
+                <thead>
+                    <tr>
+                        <th>{{ _('Name') }}</th>
+                        <th>{{ _('Description') }}</th>
+                        <th>{{ _('Tasks in queue') }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for region in regions %}
+                    <tr>
+                        <td>{{ region.name }}</td>
+                        <td>{{ region.description }}</td>
+                        <td>{{ get_tasks_in_queue(region.id) }}</td>
+                        <td><a href="#modal-{{ region.id }}" data-toggle="modal" data-target="#modal-{{ region.id }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-eye"></i></button></a>
+                        <a href="{{ url_for('admin.regions_edit', region_id=region.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-pen-to-square"></i></button></a>
+                        <a href="{{ url_for('admin.regions_delete', region_id=region.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-trash"></i></button></a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+    {% for region in regions %}
+    <div class="modal fade" id="modal-{{ region.id }}" tabindex='-1'>
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">{{ _('API Configuration') }}</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>{{ _('You can download the configuration file:') }} <a href="{{ url_for('admin.regions_download_config', region_id=region.id) }}">{{ _('here') }}</a></p>
+            <div class="form-group">
+              <label for="access_key">{{ _('Access Key') }}</label>
+              <input type="text" class="form-control" id="access_key" name="access_key" value="{{ region.access_key }}" readonly>
+            </div>
+            <div class="form-group">
+              <label for="secret_key">{{ _('Secret Key') }}</label>
+              <input type="text" class="form-control" id="secret_key" name="secret_key" value="{{ region.secret_key }}" readonly>
+            </div>
+            <div class="form-group">
+              <label for="docker_command">{{ _('Docker Command') }}</label>
+              <textarea class="form-control" id="docker_command" name="docker_command" readonly>docker pull firstcloudhosting/linufy-region:latest -e ACCESS_KEY={{ region.access_key }} -e SECRET_KEY={{ region.secret_key }} -e LINUFY_URL={{ request.scheme }}://{{ request.host }} -e REDIS_HOST={{ region.redis.hostname }} -e REDIS_PORT={{ region.redis.port }} -e REDIS_DB={{ region.redis_db-1 }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+{% endblock %}

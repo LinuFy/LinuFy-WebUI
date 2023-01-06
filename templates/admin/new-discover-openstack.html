@@ -1,0 +1,55 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('Assets') }}</h3>
+        </div>
+        <div class="card-body">
+          <form action="new" method="post">
+            <div class="form-group">
+              <label for="name">{{ _('Name') }}</label>
+              <input type="text" class="form-control" id="name" name="name" placeholder="{{ _('Discovery name') }}">
+            </div>
+            <div class="form-group">
+              <label for="url">{{ _('URL') }}</label>
+              <input type="text" class="form-control" id="url" name="url" placeholder="https://proxmox:8006/">
+            </div>
+            <div class="form-group">
+              <label for="password_manager_group_id">{{ _('Password Manager Group') }}</label>
+              <select class="custom-select rounded-0" id="password_manager_group_id" name="password_manager_group_id">
+                {% for group in groups %}
+                <option value="{{ group.id }}">{{ group.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="password_manager_id">{{ _('Credential') }}</label>
+              <select class="custom-select rounded-0" id="password_manager_id" name="password_manager_id" disabled>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="project_id">{{ _('Tenant Name') }}</label>
+              <input type="text" class="form-control" id="project_id" name="project_id">
+            </div>
+            <div class="form-group">
+              <label for="region_name">{{ _('URL') }}</label>
+              <input type="text" class="form-control" id="region_name" name="region_name">
+            </div>
+            <input type="hidden" name="discovery_method" value="openstack">
+            <input type="hidden" name="region_id" value="{{ region_id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+          </form>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}

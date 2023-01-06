@@ -1,0 +1,44 @@
+{% extends "base-auth.html" %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ _('Region/Site') }}</h3>
+        </div>
+        <div class="card-body">
+          <form action="new" method="post">
+            <div class="form-group">
+              <label for="name">{{ _('Name') }}</label>
+              <input type="text" class="form-control" id="name" name="name" placeholder="{{ _('New redis instance') }}">
+            </div>
+            <div class="form-group">
+              <label for="description">{{ _('Description') }}</label>
+              <textarea class="form-control" id="description" name="description"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="hostname">{{ _('Hostname') }}</label>
+              <input type="text" class="form-control" id="hostname" name="hostname" placeholder="{{ _('localhost') }}">
+            </div>
+            <div class="form-group">
+              <label for="port">{{ _('Port') }}</label>
+              <input type="number" class="form-control" id="port" name="port" value="6379">
+            </div>
+            <div class="form-group">
+              <label for="db_number">{{ _('Number of DB') }}</label>
+              <input type="number" class="form-control" id="db_number" name="db_number" value="1">
+            </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-block">{{ _('Submit') }}</button>
+          </form>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+{% endblock %}
