@@ -7,7 +7,7 @@ from flask_babel import gettext
 from flask import render_template, redirect, url_for, request, flash
 from pytz import all_timezones
 
-from linufy.libs import assets, regions, password_manager, validator
+from linufy.libs import assets, regions, password_manager, validator, parser
 from linufy.libs.roles import require_permission
 from linufy.libs.breadcrumb import breadcrumb
 
@@ -121,8 +121,9 @@ def assets_get(asset_id):
         password = password_manager.password.get(meta['password_manager_id'])
     else:
         password = None
+    bandwidth = parser.bandwidth_interfaces(meta['bandwidth_interfaces'])
     return render_template('asset.html', title_page=gettext("Assets"), asset=assets.get(asset_id), meta=meta, process_usage=json.loads(meta['process_usage']), users=users,
-        password_manager=password, timezones=all_timezones, mounted=mounted, interfaces=interfaces, groups=password_manager.get_all(), packages=assets.system.get_packages(asset_id) )
+        password_manager=password, timezones=all_timezones, mounted=mounted, interfaces=interfaces, bandwidth=bandwidth, groups=password_manager.get_all(), packages=assets.system.get_packages(asset_id) )
 
 
 @admin.route('/assets/view/<asset_id>', methods=['POST'])

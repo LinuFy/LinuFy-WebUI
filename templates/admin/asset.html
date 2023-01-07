@@ -202,6 +202,12 @@
                           <th>{{ _('MTU') }}</th>
                           <th>{{ _('MAC Address') }}</th>
                           <th>{{ _('Active') }}</th>
+                          <th>{{ _('Transmit') }}</th>
+                          <th>{{ _('Transmit Packets') }}</th>
+                          <th>{{ _('Transmit Errors') }}</th>
+                          <th>{{ _('Receive') }}</th>
+                          <th>{{ _('Receive Packets') }}</th>
+                          <th>{{ _('Receive Errors') }}</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -211,7 +217,12 @@
                           <td>{{ interface.mtu }}</td>
                           <td>{{ interface.macaddress }}</td>
                           <td>{{ interface.active }}</td>
-                          <td></td>
+                          <td>{{ convert_size(bandwidth[interface.device]['trans_bytes']) }}</td>
+                          <td>{{ bandwidth[interface.device]['trans_packets'] }}</td>
+                          <td>{{ bandwidth[interface.device]['trans_errs'] }}</td>
+                          <td>{{ convert_size(bandwidth[interface.device]['recv_bytes']) }}</td>
+                          <td>{{ bandwidth[interface.device]['recv_packets'] }}</td>
+                          <td>{{ bandwidth[interface.device]['recv_errs'] }}</td>
                       </tr>
                       {% endfor %}
                   </tbody>
