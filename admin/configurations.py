@@ -81,9 +81,8 @@ def redis_new_instance_post():
     description = request.form.get('description')
     hostname = request.form.get('hostname')
     port = request.form.get('port', type=int)
-    db_number = request.form.get('db_number', type=int)
 
-    new_redis_instance = configurations.add_redis_instance(name, description, hostname, port, db_number)
+    new_redis_instance = configurations.add_redis_instance(name, description, hostname, port)
     if new_redis_instance:
         flash('Your redis instance has been successfully created.', 'success')
         return redirect(url_for('admin.redis_edit_instance', instance_id=new_redis_instance.id))
@@ -105,12 +104,11 @@ def redis_edit_instance_post(instance_id):
     description = request.form.get('description')
     hostname = request.form.get('hostname')
     port = request.form.get('port', type=int)
-    db_number = request.form.get('db_number', type=int)
 
     if not configurations.get_redis_instance(instance_id):
         flash(gettext("You cannot edit this redis instance."), 'warning')
     else:
-        configurations.edit_redis_instance(instance_id, name, description, hostname, port, db_number)
+        configurations.edit_redis_instance(instance_id, name, description, hostname, port)
         flash(gettext('Your redis instance has been successfully edited.'), 'success')
 
     return redirect(url_for('admin.configurations_edit'))

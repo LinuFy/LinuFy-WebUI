@@ -110,7 +110,6 @@
                             <th>{{ _('Name') }}</th>
                             <th>{{ _('Description') }}</th>
                             <th>{{ _('Hostname/IP Address') }}</th>
-                            <th>{{ _('Number of DB') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -119,7 +118,6 @@
                             <td>{{ instance.name }}</td>
                             <td>{{ instance.description }}</td>
                             <td>{{ instance.hostname }}</td>
-                            <td>{{ instance.db_number }}</td>
                             <td><a href="{{ url_for('admin.redis_edit_instance', instance_id=instance.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-pen-to-square"></i></button></a>
                             <a href="{{ url_for('admin.redis_delete_instance', instance_id=instance.id) }}"><button type="button" class="btn bg-gradient-default btn-xs"><i class="fa-solid fa-trash"></i></button></a></td>
                         </tr>

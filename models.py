@@ -149,7 +149,6 @@ class Region(UserMixin, db.Model):
     secret_key = db.Column(db.String(32), default=secrets.token_hex(32))
     organization_id = db.Column(GUID, db.ForeignKey('organization.id'), nullable=False)
     redis_id = db.Column(GUID, db.ForeignKey('redis.id'), nullable=False)
-    redis_db = db.Column(db.Integer())
 
     organization = db.relationship("Organization", foreign_keys=[organization_id])
     redis = db.relationship("Redis", foreign_keys=[redis_id])
@@ -166,7 +165,6 @@ class Redis(db.Model):
     description = db.Column(db.Text())
     hostname = db.Column(db.String(1000))
     port = db.Column(db.Integer())
-    db_number = db.Column(db.Integer())
 
 
 class Subnet(db.Model):

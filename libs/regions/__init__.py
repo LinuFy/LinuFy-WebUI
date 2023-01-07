@@ -33,25 +33,9 @@ def add(name, description, redis_id):
         flash(gettext(
             'This redis instance does not exist. Please use another redis instance.'), 'warning')
         return False
-    if Region.query.filter_by(redis_id=redis_id).count() == redis_instance.db_number:
-        flash(gettext(
-            'This redis instance no longer has a database available. Please use another redis instance.'), 'warning')
-        return False
-
-    redis_db = None
-
-    for i in range(1, redis_instance.db_number):
-        if not Region.query.filter_by(redis_id=redis_id, redis_db=i).first():
-            redis_db = i
-            break
-
-    if redis_db == None:
-        flash(gettext(
-            'This redis instance no longer has a database available. Please use another redis instance.'), 'warning')
-        return False
 
     # create a new region
-    new_region = Region(name=name, description=description, organization_id=current_user.get_organization, redis_id=redis_id, redis_db=redis_db)
+    new_region = Region(name=name, description=description, organization_id=current_user.get_organization, redis_id=redis_id)
 
     # add the new region to the database
     db.session.add(new_region)

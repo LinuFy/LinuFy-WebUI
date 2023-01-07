@@ -59,7 +59,7 @@ def get_redis_instance(instance_id):
     return Redis.query.filter_by(id=instance_id).first()
 
 
-def add_redis_instance(name, description, hostname, port, db_number):
+def add_redis_instance(name, description, hostname, port):
     if name == None or description == None:
         flash(gettext('Please set name and description values'), 'warning')
         return False
@@ -68,17 +68,13 @@ def add_redis_instance(name, description, hostname, port, db_number):
         flash(gettext('Port is invalid'), 'warning')
         return False
 
-    if not isinstance(db_number, int):
-        flash(gettext('Number of DB is invalid'), 'warning')
-        return False
-
-    new_redis_instance = Redis(name=name, description=description, hostname=hostname, port=port, db_number=db_number)
+    new_redis_instance = Redis(name=name, description=description, hostname=hostname, port=port)
     db.session.add(new_redis_instance)
     db.session.commit()
     return new_redis_instance
 
 
-def edit_redis_instance(instance_id, name, description, hostname, port, db_number):
+def edit_redis_instance(instance_id, name, description, hostname, port):
     if name == None or description == None:
         flash(gettext('Please set name and description values'), 'warning')
         return False
@@ -87,12 +83,8 @@ def edit_redis_instance(instance_id, name, description, hostname, port, db_numbe
         flash(gettext('Port is invalid'), 'warning')
         return False
 
-    if not isinstance(db_number, int):
-        flash(gettext('Number of DB is invalid'), 'warning')
-        return False
-
     Redis.query.filter_by(
-        id=instance_id).update(dict(name=name, description=description, hostname=hostname, port=port, db_number=db_number))
+        id=instance_id).update(dict(name=name, description=description, hostname=hostname, port=port))
     db.session.commit()
     return True
 
